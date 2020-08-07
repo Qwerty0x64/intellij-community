@@ -123,6 +123,12 @@ public class I18NInspectionTest extends LightJavaCodeInsightFixtureTestCase {
     doTestNlsMode();
   }
 
+  public void testArrayInitializerInNlsMode() { doTestNlsMode(); }
+
+  public void testSwitchInNlsMode() { doTestNlsMode(); }
+
+  public void testReturnCallWithArgs() { doTest(); }
+
   @Override
   protected String getTestDataPath() {
     return PluginPathManager.getPluginHomePath("java-i18n") + "/testData/inspections";
