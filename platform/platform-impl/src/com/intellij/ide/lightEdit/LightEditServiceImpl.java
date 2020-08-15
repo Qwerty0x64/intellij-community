@@ -77,8 +77,9 @@ public final class LightEditServiceImpl implements LightEditService,
 
   private void init() {
     boolean notify = false;
+    Project project = getOrCreateProject();
     if (myFrameWrapper == null) {
-      myFrameWrapper = LightEditFrameWrapper.allocate(() -> closeEditorWindow());
+      myFrameWrapper = LightEditFrameWrapper.allocate(project, () -> closeEditorWindow());
       LOG.info("Frame created");
       restoreSession();
       notify = true;
@@ -89,7 +90,7 @@ public final class LightEditServiceImpl implements LightEditService,
       notify = true;
     }
     if (notify) {
-      ApplicationManager.getApplication().getMessageBus().syncPublisher(LightEditService.TOPIC).lightEditWindowOpened();
+      ApplicationManager.getApplication().getMessageBus().syncPublisher(LightEditService.TOPIC).lightEditWindowOpened(project);
     }
   }
 
@@ -224,11 +225,12 @@ public final class LightEditServiceImpl implements LightEditService,
   @Override
   public boolean closeEditorWindow() {
     if (canClose()) {
+      Project project = Objects.requireNonNull(myFrameWrapper.getProject());
       myFrameWrapper.getFrame().setVisible(false);
       saveSession();
       myEditorManager.releaseEditors();
       LOG.info("Window closed");
-      ApplicationManager.getApplication().getMessageBus().syncPublisher(LightEditService.TOPIC).lightEditWindowClosed();
+      ApplicationManager.getApplication().getMessageBus().syncPublisher(LightEditService.TOPIC).lightEditWindowClosed(project);
       if (ProjectManager.getInstance().getOpenProjects().length == 0 && WelcomeFrame.getInstance() == null) {
         disposeFrameWrapper();
         LOG.info("No open projects or welcome frame, exiting");
